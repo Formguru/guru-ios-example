@@ -68,13 +68,18 @@ class CameraController: NSObject {
   override init() {
     super.init()
     
-    self.configureCamera()
+    VideoUtils.configureCamera(session: session, callback: self)
     
     Task { @MainActor in
-      self.guruVideo = try? await GuruVideo(
-        apiKey: apiKey,
-        schemaId: schemaId
-      )
+      do {
+        self.guruVideo = try await GuruVideo(
+          apiKey: apiKey,
+          schemaId: schemaId
+        )
+      }
+      catch {
+        print("Failed to create GuruVideo. Confirm that your API Key and Schema ID are correct.")
+      }
     }
   }
 
@@ -82,36 +87,6 @@ class CameraController: NSObject {
     DispatchQueue.global(qos: .userInitiated).async {
       self.session.startRunning()
     }
-  }
-  
-  private func configureCamera() {
-    session.beginConfiguration()
-    
-    session.sessionPreset = .vga640x480
-    
-    do {
-      guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: AVCaptureDevice.Position.front) else {
-        fatalError("No camera available")
-      }
-
-      session.addInput(try AVCaptureDeviceInput(device: camera))
-    } catch {
-      fatalError(error.localizedDescription)
-    }
-    
-    let output = AVCaptureVideoDataOutput()
-    output.alwaysDiscardsLateVideoFrames = true
-    output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as AnyHashable as! String: kCVPixelFormatType_32BGRA]
-    output.setSampleBufferDelegate(self, queue: DispatchQueue(label: "frameBuffer"))
-    session.addOutput(output)
-    
-    if let connection = output.connection(with: .video) {
-      connection.videoOrientation = .portrait
-    } else {
-      fatalError("Failed to set video orientation")
-    }
-    
-    session.commitConfiguration()
   }
 }
 

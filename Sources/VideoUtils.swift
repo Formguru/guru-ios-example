@@ -33,6 +33,36 @@ struct VideoUtils {
     }
     return exifOrientation
   }
+  
+  static func configureCamera(session: AVCaptureSession, callback: AVCaptureVideoDataOutputSampleBufferDelegate) {
+    session.beginConfiguration()
+    
+    session.sessionPreset = .vga640x480
+    
+    do {
+      guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: AVCaptureDevice.Position.front) else {
+        fatalError("No camera available")
+      }
+
+      session.addInput(try AVCaptureDeviceInput(device: camera))
+    } catch {
+      fatalError(error.localizedDescription)
+    }
+    
+    let output = AVCaptureVideoDataOutput()
+    output.alwaysDiscardsLateVideoFrames = true
+    output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as AnyHashable as! String: kCVPixelFormatType_32BGRA]
+    output.setSampleBufferDelegate(callback, queue: DispatchQueue(label: "frameBuffer"))
+    session.addOutput(output)
+    
+    if let connection = output.connection(with: .video) {
+      connection.videoOrientation = .portrait
+    } else {
+      fatalError("Failed to set video orientation")
+    }
+    
+    session.commitConfiguration()
+  }
 }
 
 extension UIImage {
