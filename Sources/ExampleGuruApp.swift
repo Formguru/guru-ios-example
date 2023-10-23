@@ -63,7 +63,7 @@ class CameraController: NSObject {
   let session = AVCaptureSession()
   var imageView: UIImageView?
   var guruVideo: GuruVideo?
-  var latestInference: GuruAnalysis = GuruAnalysis(result: nil, processResult: [:])
+  var latestInference: GuruAnalysis = GuruAnalysis(result: nil, processResult: [:], frameTimestamp: 0)
 
   override init() {
     super.init()
