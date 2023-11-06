@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Formguru/guru-swift-sdk/",
       "state" : {
-        "revision" : "e44aa4c9f5363f664cd113d820aafae1bb1efff1",
-        "version" : "2.1.0"
+        "revision" : "593d6b58e5f24ede1a68bf2047f37dd6fb7bb6ad",
+        "version" : "2.2.0"
       }
     }
   ],
